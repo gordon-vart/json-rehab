@@ -6,20 +6,53 @@ import os  # <- add this
 # -------------------------------
 # helper function defined first
 # -------------------------------
-def decode_dirty_json(input_str):
+def clean_json_string(s: str) -> str:
+    # replace escaped \r, \n, \t
+    s = s.replace("\\r", " ").replace("\\n", " ").replace("\\t", " ")
+    # remove trailing commas before } or ]
+    s = re.sub(r",\s*(?=[}\]])", "", s)
+    # optionally replace smart quotes with normal quotes
+    s = s.replace("“", '"').replace("”", '"').replace("‘", "'").replace("’", "'")
+    print("cleaned", s)
+    return s
+
+def parser_encoded_clean(raw: str):
+    """Try parsing with using a clean version of the data."""
+    return parser_encoded(clean_json_string(raw))
+
+def parser_encoded(raw: str):
+    # 1. try parsing directly
     try:
-        first_pass = dirtyjson.loads(input_str)
+        return dirtyjson.loads(raw)
     except Exception:
-        first_pass = input_str
-    if isinstance(first_pass, str):
+        pass
+
+    # 2. unescape if it looks like \"name\": patterns
+    if '\\"' in raw or raw.startswith("{\\"):
         try:
-            second_pass = dirtyjson.loads(first_pass)
-            return second_pass
+            unescaped = raw.encode("utf-8").decode("unicode_escape")
+            print("unescaped once:", unescaped)
+            return dirtyjson.loads(unescaped)
         except Exception:
-            return first_pass
-    else:
-        return first_pass
+            pass
+
+    # 5. give up — return None
+    return None    
     
+def decode_multiple_strategies(raw: str):
+    """Try multiple parsing strategies in order until one works."""
+    parsers = [parser_encoded, parser_encoded_clean]
+
+    for parser in parsers:
+        result = parser(raw)
+        if result is not None:
+            return result
+    
+    # fallback: return raw string if all fail
+    print("Failed to extract", raw)
+    return raw
+
+#variables
 app = FastAPI()
 json_pattern = re.compile(r"\{[\s\S]*?\}")
 
@@ -37,7 +70,7 @@ async def extract_json(request: Request):
 
     for raw in matches:
         try:
-            parsed = decode_dirty_json(raw)   # function called here
+            parsed = decode_multiple_strategies(raw)   # function called here
             results.append({"valid": True, "json": parsed})
         except Exception as e:
             results.append({"valid": False, "error": str(e), "raw": raw})
