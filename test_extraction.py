@@ -10,7 +10,7 @@ client = TestClient(app)
 single_json = '{ "name": "Alice", "age": 30 }'
 double_json = '"{\\"name\\": \\"Bob\\", \\"age\\": 25,}"'
 messy_llm_output = 'random text { "id": 1, "valid": true, } end text'
-test4 = 'Here are the identified scenes:\n\n{\nid: 1,\ndescription: \"Gordon Blackwood arrives at dusk, carrying only a battered suitcase and a worn notebook.\"\n}\n\n'
+test4 = 'Here are the identified scenes:\n\n{\nid: 1,\ndescription: \"test arrives at duskk.\"\n}\n\n'
 # --------------------------
 # tests
 # --------------------------
