@@ -21,6 +21,7 @@ def parser_encoded_clean(raw: str):
     return parser_encoded(clean_json_string(raw))
 
 def parser_encoded(raw: str):
+    print("Processing: ", raw)
     # 1. try parsing directly
     try:
         return dirtyjson.loads(raw)
@@ -46,6 +47,7 @@ def decode_multiple_strategies(raw: str):
     for parser in parsers:
         result = parser(raw)
         if result is not None:
+            print("success", result)
             return result
     
     # fallback: return raw string if all fail
