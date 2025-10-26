@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  json-rehab:
+    build: .
+    container_name: json-rehab
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/extract"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
