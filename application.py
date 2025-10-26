@@ -11,6 +11,10 @@ async def extract_json(request: Request):
     text = await request.body()
     text = text.decode("utf-8")
 
+    # replace textual \r and \n with actual whitespace
+    text = text.replace("\\r", " ").replace("\\n", " ")
+    
+    # find all matching
     matches = json_pattern.findall(text)
     results = []
 
