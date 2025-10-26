@@ -13,8 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy the rest of the code
 COPY . .
 
-# expose port
-EXPOSE 8080
+ENV PORT=8080
 
 # command to run uvicorn
-CMD ["uvicorn", "application:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "uvicorn application:app --host 0.0.0.0 --port ${PORT}"]
